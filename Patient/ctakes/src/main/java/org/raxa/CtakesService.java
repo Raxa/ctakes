@@ -3,7 +3,10 @@ package org.raxa;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ctakes.chunker.ae.Chunker;
 import org.apache.ctakes.contexttokenizer.ae.ContextDependentTokenizerAnnotator;
@@ -14,13 +17,22 @@ import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.resource.FileResourceImpl;
+import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
+import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
+import org.apache.ctakes.drugner.DrugMention;
 import org.apache.ctakes.drugner.ae.CopyDrugAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
+import org.apache.ctakes.drugner.type.DosagesAnnotation;
+import org.apache.ctakes.drugner.type.DrugMentionAnnotation;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.necontexts.ContextAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
+import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ExternalResourceDescription;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.metadata.ConfigurationParameter;
@@ -61,8 +73,9 @@ public class CtakesService
 			org.apache.ctakes.core.resource.FileResourceImpl.class;
 
 	/** String for holding type system. */
-	private static String tsdst = "org.apache.ctakes.typesystem.types.TypeSystem";
+	private static String tsdst = "org.apache.ctakes.drugner.types.TypeSystem";
 
+	
 	/** Type System Description. */
 	private static TypeSystemDescription tsd =
 			TypeSystemDescriptionFactory.createTypeSystemDescription(tsdst);
@@ -146,7 +159,7 @@ public class CtakesService
 		aedList.add(simpleSegmentDesc);            
 		aedList.add(sentDetectDesc);            
 		aedList.add(tokenizerDesc);  
-		aedList.add(lvgDesc);
+		//aedList.add(lvgDesc);
 		aedList.add(contextDependentTokenizerDesc);
 		aedList.add(posTagdesc);           
 		aedList.add(chunkerDesc);                       
@@ -196,6 +209,7 @@ public class CtakesService
 		ConfigurationParameter ContextAnnotationClass = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"ContextAnnotationClass", String.class, DESC, true);
+		ScopeOrder.setMultiValued(true);
 		
 		configurationParameter[0]=maxLeftScopeSize;
 		configurationParameter[1]=maxRightScopeSize;
@@ -207,8 +221,8 @@ public class CtakesService
 		configurationParameter[7]=ContextAnalyzerClass;
 		
 		String[] scopeOrderArr = new String[2];
-		scopeOrderArr[0]="Left";
-		scopeOrderArr[1]="Right";
+		scopeOrderArr[0]="LEFT";
+		scopeOrderArr[1]="RIGHT";
 		
 		Object[] configVals = new Object[8];
 		configVals[0]=7;
@@ -256,6 +270,8 @@ public class CtakesService
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"ContextAnnotationClass", String.class, DESC, true);
 		
+		ScopeOrder.setMultiValued(true);
+		
 		configurationParameter[0]=maxLeftScopeSize;
 		configurationParameter[1]=maxRightScopeSize;
 		configurationParameter[2]=ScopeOrder;
@@ -266,18 +282,18 @@ public class CtakesService
 		configurationParameter[7]=ContextAnalyzerClass;
 		
 		String[] scopeOrderArr = new String[2];
-		scopeOrderArr[0]="Left";
-		scopeOrderArr[1]="Right";
+		scopeOrderArr[0]="LEFT";
+		scopeOrderArr[1]="RIGHT";
 		
 		Object[] configVals = new Object[8];
 		configVals[0]=10;
 		configVals[1]=10;
 		configVals[2]=scopeOrderArr;
-		configVals[3]="org.apache.ctakes.necontexts.negation.StatusContextHitConsumer";
+		configVals[3]="org.apache.ctakes.necontexts.status.StatusContextHitConsumer";
 		configVals[4]="org.apache.ctakes.typesystem.type.textspan.Sentence";
 		configVals[5]="org.apache.ctakes.typesystem.type.textsem.IdentifiedAnnotation";
 		configVals[6]="org.apache.ctakes.typesystem.type.syntax.BaseToken";
-		configVals[7]="org.apache.ctakes.necontexts.negation.StatusContextAnalyzer";
+		configVals[7]="org.apache.ctakes.necontexts.status.StatusContextAnalyzer";
 		
 		AnalysisEngineDescription negationDesc = AnalysisEngineFactory.createPrimitiveDescription
 				(ContextAnnotator.class, null,null,null,null
@@ -286,6 +302,7 @@ public class CtakesService
 	}
 
 	private static AnalysisEngineDescription getDrugMentionAnnot() throws ResourceInitializationException {
+		
 		ConfigurationParameter[] configurationParameter = 
 				new ConfigurationParameter[4];
 		
@@ -294,13 +311,15 @@ public class CtakesService
 						"medicationRelatedSection", String.class, DESC, true);
 		ConfigurationParameter DISTANCE = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
-						"DISTANCE", Integer.class, DESC, true);
+						"DISTANCE", String.class, DESC, true);
 		ConfigurationParameter DISTANCE_ANN_TYPE = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"DISTANCE_ANN_TYPE", String.class, DESC, true);
 		ConfigurationParameter STATUS_BOUNDARY_ANN_TYPE = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"STATUS_BOUNDARY_ANN_TYPE", String.class, DESC, true);
+		
+		medicationRelatedSection.setMultiValued(true);
 		
 		configurationParameter[0]=medicationRelatedSection;
 		configurationParameter[1]=DISTANCE;
@@ -318,7 +337,7 @@ public class CtakesService
 		
 		Object[] configVals = new Object[4];
 		configVals[0]=medicArray;
-		configVals[1]=1;
+		configVals[1]="1";
 		configVals[2]="org.apache.ctakes.typesystem.type.textspan.Sentence";
 		configVals[3]="org.apache.ctakes.typesystem.type.textspan.Sentence";
 		
@@ -340,39 +359,41 @@ public class CtakesService
 		
 		ConfigurationParameter[] configurationParameters = new ConfigurationParameter[4];
 		
-		ConfigurationParameter srcObjClass =
+		ConfigurationParameter srcDrugObjClass =
 				ConfigurationParameterFactory.createPrimitiveParameter(
-						"srcObjClass", String.class, DESC, true);
-		ConfigurationParameter destObjClass =
+						"srcDrugObjClass", String.class, DESC, true);
+		ConfigurationParameter destDrugObjClass =
 				ConfigurationParameterFactory.createPrimitiveParameter(
-						"destObjClass", String.class, DESC, true);
-		ConfigurationParameter dataBindMap =
+						"destDrugObjClass", String.class, DESC, true);
+		ConfigurationParameter dataDrugBindMap =
 				ConfigurationParameterFactory.createPrimitiveParameter(
-						"dataBindMap", String.class, DESC, true);
+						"dataDrugBindMap", String.class, DESC, true);
 		ConfigurationParameter sectionOverrideSet =
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"sectionOverrideSet", String.class, DESC, true);
 		
-		dataBindMap.setMultiValued(true);
+		dataDrugBindMap.setMultiValued(true);
 		sectionOverrideSet.setMultiValued(true);
 		
-		configurationParameters[0] = srcObjClass;
-		configurationParameters[1] = destObjClass;
-		configurationParameters[2] = dataBindMap;
+		configurationParameters[0] = srcDrugObjClass;
+		configurationParameters[1] = destDrugObjClass;
+		configurationParameters[2] = dataDrugBindMap;
 		configurationParameters[3] = sectionOverrideSet;
 		
-		Object[] copyAconfVals = new Object[4];
-		copyAconfVals[0] = "org.apache.ctakes.typesystem.type.syntax.NP";
-		copyAconfVals[1] = LOOKUP_WINDOW_PATH;
 		String[] dataBindArray = new String[2];
 		dataBindArray[0] = "getBegin|setBegin";
 		dataBindArray[1] = "getEnd|setEnd";
-		copyAconfVals[2] = dataBindArray;
+		
 		String[] sectionOverRideArr = new String[4];
 		sectionOverRideArr[0]="SIMPLE_SEGMENT";
 		sectionOverRideArr[1]="20104";
 		sectionOverRideArr[2]="20133";
 		sectionOverRideArr[3]="20147";
+		
+		Object[] copyAconfVals = new Object[4];
+		copyAconfVals[0] = "org.apache.ctakes.typesystem.type.syntax.NP";
+		copyAconfVals[1] = "org.apache.ctakes.typesystem.type.textspan.DrugLookupWindowAnnotation";
+		copyAconfVals[2] = dataBindArray;
 		copyAconfVals[3]=sectionOverRideArr;
 
 		Class<CopyDrugAnnotator> copyAclass = CopyDrugAnnotator.class;
@@ -425,9 +446,68 @@ public class CtakesService
 		return components;
 	}
 
-	private static AnalysisEngineDescription getDictlookupDesc() {
-		// TODO Auto-generated method stub
-		return null;
+	private static AnalysisEngineDescription getDictlookupDesc() throws MalformedURLException, ResourceInitializationException {
+		
+		ConfigurationParameter[] configurationParameters = new ConfigurationParameter[5];
+        ConfigurationParameter maxListSize =
+                ConfigurationParameterFactory.createPrimitiveParameter(
+                        "maxListSize", Integer.class, DESC, false);
+        ConfigurationParameter ctakesUmlsaddr =
+                ConfigurationParameterFactory.createPrimitiveParameter(
+                        "ctakes.umlsaddr", String.class, DESC, false);
+        ConfigurationParameter ctakesUmlsvendor =
+                ConfigurationParameterFactory.createPrimitiveParameter(
+                        "ctakes.umlsvendor", String.class, DESC, false);
+        ConfigurationParameter ctakesUmlsuser =
+                ConfigurationParameterFactory.createPrimitiveParameter(
+                        "ctakes.umlsuser", String.class, DESC, false);
+        ConfigurationParameter ctakesUmlspass =
+                ConfigurationParameterFactory.createPrimitiveParameter(
+                        "ctakes.umlspw", String.class, DESC, false);
+        
+        configurationParameters[0] = maxListSize;
+        configurationParameters[1] = ctakesUmlsaddr;
+        configurationParameters[2] = ctakesUmlsvendor;
+        configurationParameters[3] = ctakesUmlsuser;
+        configurationParameters[4] = ctakesUmlspass;
+        
+        Object[] configVals = new Object[5];
+        configVals[0]=2147483647;
+        configVals[1]="https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser";
+        configVals[2]="NLM-6515182895";
+        configVals[3]="ravigarg27";
+        configVals[4]="rpg09081$";
+        
+        String fileurl = new File(INIT_PATH
+                + "DictionaryLookup/LookupDesc_DrugNER.xml")
+                   .toURI().toURL().toString();
+        
+        ExternalResourceDescription dictERD1 =
+                ExternalResourceFactory.createExternalResourceDescription(
+                        "LookupDescriptorFile", fileResClassImpl, fileurl);
+        
+        Class<LuceneIndexReaderResourceImpl> luceneResClassImpl =
+                org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl.class;
+        
+        ExternalResourceDescription dictERD2 =
+                ExternalResourceFactory.createExternalResourceDescription(
+                        "RxnormIndex", luceneResClassImpl, "",
+                        "UseMemoryIndex", true, "IndexDirectory", "DictionaryLookup/rxnorm_index");
+
+        String lookupDesc = "LookupDescriptor";
+        String rxIndexReader = "RxnormIndexReader";
+        
+        Map<String, ExternalResourceDescription> dictMap =
+                new HashMap<String, ExternalResourceDescription>();
+        dictMap.put(lookupDesc, dictERD1);
+        dictMap.put(rxIndexReader, dictERD2);
+
+        AnalysisEngineDescription dictAED =
+                AnalysisEngineFactory.createPrimitiveDescription(
+                        UmlsDictionaryLookupAnnotator.class, null, null, null, null,
+                        configurationParameters, configVals, dictMap);
+        
+		return dictAED;
 	}
 
 	private static AnalysisEngineDescription getCopyAnnotatorDesc()
@@ -479,7 +559,7 @@ public class CtakesService
 						"UseSegments", Boolean.class, DESC, true);
 		ConfigurationParameter segmentToSkip = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
-						"SegmentsToSkip", String.class, DESC, true);
+						"SegmentsToSkip", String.class, DESC, false);
 		ConfigurationParameter useCmdCache = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"UseCmdCache", Boolean.class, DESC, true);
@@ -507,6 +587,9 @@ public class CtakesService
 		ConfigurationParameter lemmaCacheFrequencyCutoff = 
 				ConfigurationParameterFactory.createPrimitiveParameter(
 						"LemmaCacheFrequencyCutoff", Integer.class, DESC, true);
+		
+		exclusionSet.setMultiValued(true);
+		xeroxTreebankMap.setMultiValued(true);
 		
 		configurationParameters[0]=useSegment;
 		configurationParameters[1]=segmentToSkip;
@@ -633,8 +716,44 @@ public class CtakesService
 		return chunkerDesc;
 	}
 
-	public static void main(String[] args) throws ResourceInitializationException, InvalidXMLException, MalformedURLException{
+	public static void main(String[] args) throws ResourceInitializationException, InvalidXMLException, MalformedURLException, AnalysisEngineProcessException{
 		initialize();
+		System.out.println("Analysis Engine has been initialised");
+		String input = "Solution of atropine 0.1%, given in quantity of 10ml, should be taken 10 drops 2 times daily before meals";
+		extract(input);
+		
+	}
+
+
+	public static ArrayList<Drug> extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException {
+		
+		
+		JCas jCas  =  analysisEng.newJCas();
+        jCas.setDocumentText(input.toLowerCase());
+        analysisEng.process(jCas);
+        
+        
+        Iterator<Annotation> drugIter  =  jCas.getAnnotationIndex(MedicationMention.type).iterator();
+        
+        while(drugIter.hasNext()){
+        	MedicationMention drugMention = (MedicationMention) drugIter.next();
+        	Drug drug = new Drug();
+        	//System.out.println(drugMention.getCoveredText());
+        	System.out.println(drugMention.getMedicationFrequency().getCategory());
+        	
+        	/*drug.setDrugName(drugMention.getCoveredText());
+        	drug.setDosage(drugMention.getMedicationDosage().getCoveredText());
+        	drug.setDuration(drugMention.getMedicationDuration().getCoveredText());
+        	drug.setFrequency(drugMention.getMedicationFrequency().getNormalizedForm().get);
+        	drug.setRoute(drugMention.getMedicationRoute().getCoveredText());
+        	System.out.println(drug.getDosage()+" "+drug.getDrugName()+" "+drug.getDuration()+" "+drug.getFrequency()+" "+drug.getRoute());
+        */}
+        
+        
+        
+        
+        
+		return null;
 	}
 
 

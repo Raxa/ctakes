@@ -19,55 +19,55 @@ public class Drug {
 
     }
     
-	public static String getDrugName() {
+	public String getDrugName() {
 		return drugName;
 	}
 
-	public static void setDrugName(String drugName) {
+	public void setDrugName(String drugName) {
 		Drug.drugName = drugName;
 	}
 
-	public static String getFrequency() {
+	public String getFrequency() {
 		return frequency;
 	}
 
-	public static void setFrequency(String frequency) {
+	public void setFrequency(String frequency) {
 		Drug.frequency = frequency;
 	}
 
-	public static String getFrequecyUnit() {
+	public String getFrequecyUnit() {
 		return frequecyUnit;
 	}
 
-	public static void setFrequecyUnit(String frequecyUnit) {
+	public void setFrequecyUnit(String frequecyUnit) {
 		Drug.frequecyUnit = frequecyUnit;
 	}
 
-	public static String getDosage() {
+	public String getDosage() {
 		return dosage;
 	}
 
-	public static void setDosage(String dosage) {
+	public void setDosage(String dosage) {
 		Drug.dosage = dosage;
 	}
 
-	public static String getRoute() {
+	public String getRoute() {
 		return route;
 	}
 
-	public static void setRoute(String route) {
+	public void setRoute(String route) {
 		Drug.route = route;
 	}
 
-	public static String getDuration() {
+	public String getDuration() {
 		return duration;
 	}
 
-	public static void setDuration(String duration) {
+	public void setDuration(String duration) {
 		Drug.duration = duration;
 	}
 
-	public static String getStrength() {
+	public String getStrength() {
 		return strength;
 	}
 
