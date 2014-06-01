@@ -2,6 +2,8 @@ package org.raxa;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,7 +61,7 @@ public class CtakesService
 
 	/** String initial path for future multiple uses. */
 	private static final String INIT_PATH = 
-			"";
+			"/";
 
 	/** Analysis Engine for extraction of terms from Doctor's text. */
 	private static AnalysisEngine analysisEng;
@@ -82,7 +84,7 @@ public class CtakesService
 
 
 	//initializes the Analysis Engine
-	public static void initialize() throws ResourceInitializationException, InvalidXMLException, MalformedURLException{
+	public static void initialize() throws ResourceInitializationException, InvalidXMLException, MalformedURLException, URISyntaxException{
 
 		//Segmentation
 		AnalysisEngineDescription simpleSegmentDesc =
@@ -446,7 +448,7 @@ public class CtakesService
 		return components;
 	}
 
-	private static AnalysisEngineDescription getDictlookupDesc() throws MalformedURLException, ResourceInitializationException {
+	private static AnalysisEngineDescription getDictlookupDesc() throws MalformedURLException, ResourceInitializationException, URISyntaxException {
 		
 		ConfigurationParameter[] configurationParameters = new ConfigurationParameter[5];
         ConfigurationParameter maxListSize =
@@ -478,10 +480,8 @@ public class CtakesService
         configVals[3]="ravigarg27";
         configVals[4]="rpg09081$";
         
-        String fileurl = new File(INIT_PATH
-                + "DictionaryLookup/LookupDesc_DrugNER.xml")
-                   .toURI().toURL().toString();
         
+        String fileurl = CtakesService.class.getClassLoader().getResource("DictionaryLookup/LookupDesc_DrugNER.xml").toURI().toURL().toString();
         ExternalResourceDescription dictERD1 =
                 ExternalResourceFactory.createExternalResourceDescription(
                         "LookupDescriptorFile", fileResClassImpl, fileurl);
@@ -716,7 +716,7 @@ public class CtakesService
 		return chunkerDesc;
 	}
 
-	public static void main(String[] args) throws ResourceInitializationException, InvalidXMLException, MalformedURLException, AnalysisEngineProcessException{
+	public static void main(String[] args) throws ResourceInitializationException, InvalidXMLException, MalformedURLException, AnalysisEngineProcessException, URISyntaxException{
 		initialize();
 		System.out.println("Analysis Engine has been initialised");
 		String input = "Solution of atropine 0.1%, given in quantity of 10ml, should be taken 10 drops 2 times daily before meals";
@@ -725,8 +725,14 @@ public class CtakesService
 	}
 
 
-	public static ArrayList<Drug> extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException {
+	public static ArrayList<Drug> extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException, InvalidXMLException, MalformedURLException, URISyntaxException {
 		
+		ArrayList<Drug> drugsList = new ArrayList<Drug>();
+		
+		if(analysisEng==null){
+			initialize();
+			System.out.println("Analysis Engine initialised");
+		}
 		
 		JCas jCas  =  analysisEng.newJCas();
         jCas.setDocumentText(input.toLowerCase());
@@ -739,21 +745,18 @@ public class CtakesService
         	MedicationMention drugMention = (MedicationMention) drugIter.next();
         	Drug drug = new Drug();
         	//System.out.println(drugMention.getCoveredText());
-        	System.out.println(drugMention.getMedicationFrequency().getCategory());
+        	//System.out.println(drugMention.getMedicationFrequency().getCategory());
         	
-        	/*drug.setDrugName(drugMention.getCoveredText());
-        	drug.setDosage(drugMention.getMedicationDosage().getCoveredText());
-        	drug.setDuration(drugMention.getMedicationDuration().getCoveredText());
-        	drug.setFrequency(drugMention.getMedicationFrequency().getNormalizedForm().get);
-        	drug.setRoute(drugMention.getMedicationRoute().getCoveredText());
-        	System.out.println(drug.getDosage()+" "+drug.getDrugName()+" "+drug.getDuration()+" "+drug.getFrequency()+" "+drug.getRoute());
-        */}
-        
-        
-        
-        
-        
-		return null;
+        	drug.setDrugName(drugMention.getCoveredText());
+        	//drug.setDosage(drugMention.getMedicationDosage().getCategory());
+        	//drug.setDuration(drugMention.getMedicationDuration().getCategory());
+        	//drug.setFrequency(drugMention.getMedicationFrequency().getCategory());
+        	//drug.setRoute(drugMention.getMedicationRoute().getCategory());
+        	//System.out.println(drug.getDosage()+" "+drug.getDrugName()+" "+drug.getDuration()+" "+drug.getFrequency()+" "+drug.getRoute());
+        	drugsList.add(drug);
+        }
+      
+		return drugsList;
 	}
 
 
