@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -16,6 +17,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.InvalidXMLException;
 import org.raxa.CtakesService;
+import org.raxa.NaturalLanguageGenerator;
 
 import com.google.gson.Gson;
 
@@ -27,14 +29,15 @@ public class ctakesService {
 	@GET
 	@Path("/{parameter}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resposeMsg(@QueryParam("text") List<String> text) throws AnalysisEngineProcessException, ResourceInitializationException, InvalidXMLException, URISyntaxException, IOException{
+	public Response resposeMsg(@QueryParam("language") String language, @QueryParam("text") List<String> text) throws AnalysisEngineProcessException, ResourceInitializationException, InvalidXMLException, URISyntaxException, IOException{
 		
 		ArrayList <String> naturalText = new ArrayList<String>();
 		
 		for(String drugtext : text){
 			System.out.println(drugtext);
 			String drugNaturalText = CtakesService.extract(drugtext);
-			naturalText.add(drugNaturalText);
+			String convertedText = NaturalLanguageGenerator.langTranslator(drugNaturalText,language);
+			naturalText.add(convertedText);
 		}
 		//String output = drugsList.toString();
 		Gson gson = new Gson();

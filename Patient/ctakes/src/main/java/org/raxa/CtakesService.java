@@ -193,8 +193,8 @@ public class CtakesService
 
 	private static void inflate() throws IOException, URISyntaxException {
 		
+		//Forms
 		InputStream is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugForm");
-		
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
 		String line = br.readLine();
 		while(line!=null){
@@ -205,6 +205,8 @@ public class CtakesService
 			line = br.readLine();
 		}
 		br.close();
+		
+		//Route
 		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugRoute");
 		br = new BufferedReader(new InputStreamReader(is));
 		line = br.readLine();
@@ -215,12 +217,38 @@ public class CtakesService
 			line = br.readLine();
 		}
 		br.close();
+		
+		//Frequency
 		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugFrequency");
 		br = new BufferedReader(new InputStreamReader(is));
 		line = br.readLine();
 		while(line!=null){
 			String[] temp = line.split("\\t");
 			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Frequency");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		
+		//Duration
+		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugDuration");
+		br = new BufferedReader(new InputStreamReader(is));
+		line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Duration");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		
+		//Others
+		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugOthers");
+		br = new BufferedReader(new InputStreamReader(is));
+		line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Others");
 			abbnList.put(temp[0], abbreviation);
 			line = br.readLine();
 		}
@@ -765,6 +793,7 @@ public class CtakesService
 	}
 
 
+	//Main Extract Method
 	public static String extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException, InvalidXMLException, URISyntaxException, IOException {
 		
 		ArrayList<Drug> drugsList = new ArrayList<Drug>();
@@ -801,12 +830,12 @@ public class CtakesService
         	
         	drug.setDrugName(drugMention.getCoveredText());
         	
-        	//get the drug dosage from ctakes only
+        	//get the drug dosage 
         	if(drugMention.getMedicationDosage()!=null){
         		drug.setDosage(drugMention.getMedicationDosage().getCategory());
         	}
         	
-        	//get the drug duration got from ctakes only
+        	//get the drug duration 
         	if(drugMention.getMedicationDuration()!= null){
         		drug.setDuration(drugMention.getMedicationDuration().getCategory());
         	}
@@ -821,8 +850,7 @@ public class CtakesService
         		drug.setFrequecyUnit(medicFreq.getUnit());
         		
         	}
-        	
-        	
+        
         	if(drugMention.getMedicationRoute()!=null){
         		drug.setRoute(drugMention.getMedicationRoute().getCategory());
         		
@@ -840,7 +868,7 @@ public class CtakesService
         	
         	System.out.println("Route "+drug.getRoute()+" Form "+drug.getForm());
         	drugsList.add(drug);
-        	drugNaturalText = NaturalLanguageGenerator.getNaturalText(drug);
+        	drugNaturalText = NaturalLanguageGenerator.getNaturalText(drug,usedAbbreviation);
         	System.out.println("Drug Natural Text "+drugNaturalText);
         }
         

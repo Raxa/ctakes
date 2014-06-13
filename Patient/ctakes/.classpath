@@ -31,5 +31,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/home/ravi/Desktop/NLPJava/google-gson-2.2.4/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="/home/ravi/Desktop/NLPJava/gtranslateapi-1.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
