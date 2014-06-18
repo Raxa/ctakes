@@ -4,14 +4,11 @@
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
-        <wb-resource deploy-path="/" source-path="/Chunker"/>
-        <wb-resource deploy-path="/" source-path="/DictionaryLookup"/>
         <wb-resource deploy-path="/" source-path="/Lvg"/>
-        <wb-resource deploy-path="/" source-path="/POSTagger"/>
-        <wb-resource deploy-path="/" source-path="/SentenceDetection"/>
-        <dependent-module archiveName="gson-2.2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib//home/ravi/Desktop/NLPJava/google-gson-2.2.4/gson-2.2.4.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
+        <wb-resource deploy-path="/" source-path="/src/main/resources/Chunker"/>
+        <wb-resource deploy-path="/" source-path="/src/main/resources/DictionaryLookup"/>
+        <wb-resource deploy-path="/" source-path="/src/main/resources/POSTagger"/>
+        <wb-resource deploy-path="/" source-path="/src/main/resources/SentenceDetection"/>
         <property name="context-root" value="ctakes"/>
         <property name="java-output-path" value="/ctakes/target/classes"/>
     </wb-module>

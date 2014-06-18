@@ -1,21 +1,15 @@
 package org.raxa.rest;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.InvalidXMLException;
 import org.raxa.CtakesService;
 import org.raxa.NaturalLanguageGenerator;
 
@@ -29,7 +23,7 @@ public class ctakesService {
 	@GET
 	@Path("/{parameter}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resposeMsg(@QueryParam("language") String language, @QueryParam("text") List<String> text) throws AnalysisEngineProcessException, ResourceInitializationException, InvalidXMLException, URISyntaxException, IOException{
+	public Response resposeMsg(@QueryParam("language") String language, @QueryParam("text") List<String> text) throws Exception{
 		
 		ArrayList <String> naturalText = new ArrayList<String>();
 		
