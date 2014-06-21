@@ -1,7 +1,13 @@
 package org.raxa;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,14 +25,13 @@ import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
 import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
-import org.apache.ctakes.drugner.DrugMention;
 import org.apache.ctakes.drugner.ae.CopyDrugAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
-import org.apache.ctakes.drugner.type.DosagesAnnotation;
-import org.apache.ctakes.drugner.type.DrugMentionAnnotation;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
 import org.apache.ctakes.necontexts.ContextAnnotator;
 import org.apache.ctakes.postagger.POSTagger;
+import org.apache.ctakes.typesystem.type.refsem.MedicationFrequency;
+import org.apache.ctakes.typesystem.type.refsem.MedicationStrength;
 import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -59,7 +64,7 @@ public class CtakesService
 
 	/** String initial path for future multiple uses. */
 	private static final String INIT_PATH = 
-			"";
+			"/";
 
 	/** Analysis Engine for extraction of terms from Doctor's text. */
 	private static AnalysisEngine analysisEng;
@@ -80,9 +85,14 @@ public class CtakesService
 	private static TypeSystemDescription tsd =
 			TypeSystemDescriptionFactory.createTypeSystemDescription(tsdst);
 
+	/** HashMap of abbreviations <Shortform,abbreviation>. */
+	private static HashMap<String,Abbreviation> abbnList = new HashMap<String, Abbreviation>();
+	
+	private static HashMap<String,Abbreviation> usedAbbreviation;
+
 
 	//initializes the Analysis Engine
-	public static void initialize() throws ResourceInitializationException, InvalidXMLException, MalformedURLException{
+	public static void initialize() throws ResourceInitializationException, InvalidXMLException, URISyntaxException, IOException{
 
 		//Segmentation
 		AnalysisEngineDescription simpleSegmentDesc =
@@ -174,8 +184,76 @@ public class CtakesService
 		// Create the Analysis Engine
 		analysisEng = AnalysisEngineFactory.createAggregate(
 				getAnalysisEngineDesc(aedList));
+		
+		//inflate the abbreviations list to normalise the text
+		inflate();
+	
+	}
 
 
+	private static void inflate() throws IOException, URISyntaxException {
+		
+		//Forms
+		InputStream is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugForm");
+		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		String line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			System.out.println(temp[0]);
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Form");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		
+		//Route
+		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugRoute");
+		br = new BufferedReader(new InputStreamReader(is));
+		line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Route");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		
+		//Frequency
+		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugFrequency");
+		br = new BufferedReader(new InputStreamReader(is));
+		line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Frequency");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		
+		//Duration
+		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugDuration");
+		br = new BufferedReader(new InputStreamReader(is));
+		line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Duration");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		
+		//Others
+		is = CtakesService.class.getClassLoader().getResourceAsStream("/Abbreviations/drugOthers");
+		br = new BufferedReader(new InputStreamReader(is));
+		line = br.readLine();
+		while(line!=null){
+			String[] temp = line.split("\\t");
+			Abbreviation abbreviation = new Abbreviation(temp[0], temp[1], "Others");
+			abbnList.put(temp[0], abbreviation);
+			line = br.readLine();
+		}
+		br.close();
+		System.out.println(abbnList.size()+" abbreviations");
 	}
 
 
@@ -446,7 +524,7 @@ public class CtakesService
 		return components;
 	}
 
-	private static AnalysisEngineDescription getDictlookupDesc() throws MalformedURLException, ResourceInitializationException {
+	private static AnalysisEngineDescription getDictlookupDesc() throws MalformedURLException, ResourceInitializationException, URISyntaxException {
 		
 		ConfigurationParameter[] configurationParameters = new ConfigurationParameter[5];
         ConfigurationParameter maxListSize =
@@ -478,10 +556,8 @@ public class CtakesService
         configVals[3]="ravigarg27";
         configVals[4]="rpg09081$";
         
-        String fileurl = new File(INIT_PATH
-                + "DictionaryLookup/LookupDesc_DrugNER.xml")
-                   .toURI().toURL().toString();
         
+        String fileurl = CtakesService.class.getClassLoader().getResource("DictionaryLookup/LookupDesc_DrugNER.xml").toURI().toURL().toString();
         ExternalResourceDescription dictERD1 =
                 ExternalResourceFactory.createExternalResourceDescription(
                         "LookupDescriptorFile", fileResClassImpl, fileurl);
@@ -716,46 +792,99 @@ public class CtakesService
 		return chunkerDesc;
 	}
 
-	public static void main(String[] args) throws ResourceInitializationException, InvalidXMLException, MalformedURLException, AnalysisEngineProcessException{
-		initialize();
-		System.out.println("Analysis Engine has been initialised");
-		String input = "Solution of atropine 0.1%, given in quantity of 10ml, should be taken 10 drops 2 times daily before meals";
-		extract(input);
+
+	//Main Extract Method
+	public static String extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException, InvalidXMLException, URISyntaxException, IOException {
 		
-	}
-
-
-	public static ArrayList<Drug> extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException {
+		ArrayList<Drug> drugsList = new ArrayList<Drug>();
+		String drugNaturalText="";
+		usedAbbreviation = new HashMap<String, Abbreviation>();
+		
+		if(analysisEng==null){
+			initialize();
+			System.out.println("Analysis Engine initialised");
+		}
+		
+		//Normalize the text
+		//i.e normalise all the abbreviations present in the text
+		System.out.println("Input Text"+input);
+		input = normalize(input);
+		System.out.println("Input to ctakes "+input);
 		
 		
 		JCas jCas  =  analysisEng.newJCas();
         jCas.setDocumentText(input.toLowerCase());
         analysisEng.process(jCas);
         
-        
         Iterator<Annotation> drugIter  =  jCas.getAnnotationIndex(MedicationMention.type).iterator();
         
         while(drugIter.hasNext()){
         	MedicationMention drugMention = (MedicationMention) drugIter.next();
         	Drug drug = new Drug();
-        	//System.out.println(drugMention.getCoveredText());
-        	System.out.println(drugMention.getMedicationFrequency().getCategory());
         	
-        	/*drug.setDrugName(drugMention.getCoveredText());
-        	drug.setDosage(drugMention.getMedicationDosage().getCoveredText());
-        	drug.setDuration(drugMention.getMedicationDuration().getCoveredText());
-        	drug.setFrequency(drugMention.getMedicationFrequency().getNormalizedForm().get);
-        	drug.setRoute(drugMention.getMedicationRoute().getCoveredText());
-        	System.out.println(drug.getDosage()+" "+drug.getDrugName()+" "+drug.getDuration()+" "+drug.getFrequency()+" "+drug.getRoute());
-        */}
+        	System.out.println("Drug Name "+drugMention.getCoveredText());
+        	
+        	//get the drug name
+        	if(drugMention.getCoveredText().split(" ").length>=3)
+        		continue;
+        	
+        	drug.setDrugName(drugMention.getCoveredText());
+        	
+        	//get the drug dosage 
+        	if(drugMention.getMedicationDosage()!=null){
+        		drug.setDosage(drugMention.getMedicationDosage().getCategory());
+        	}
+        	
+        	//get the drug duration 
+        	if(drugMention.getMedicationDuration()!= null){
+        		drug.setDuration(drugMention.getMedicationDuration().getCategory());
+        	}
+        	
+        	//get the drug frequency
+        	if(drugMention.getMedicationFrequency()!=null){
+        		MedicationFrequency medicFreq = (MedicationFrequency) drugMention.getMedicationFrequency().getNormalizedForm();
+        		if(medicFreq.getNumber()==null)
+        			drug.setFrequency("1");
+        		else
+        			drug.setFrequency(medicFreq.getNumber());
+        		drug.setFrequecyUnit(medicFreq.getUnit());
+        		
+        	}
         
+        	if(drugMention.getMedicationRoute()!=null){
+        		drug.setRoute(drugMention.getMedicationRoute().getCategory());
+        		
+        	}
+        	
+        	
+        	if(drugMention.getMedicationStrength()!=null){
+        		MedicationStrength medicStr = (MedicationStrength) drugMention.getMedicationStrength().getNormalizedForm();
+        		drug.setStrength(medicStr.getNumber());
+        		drug.setStrengthUnit(medicStr.getUnit());
+        	}
+        	if(drugMention.getMedicationForm()!=null){
+        		drug.setForm(drugMention.getMedicationForm().getCategory());
+        	}
+        	
+        	System.out.println("Route "+drug.getRoute()+" Form "+drug.getForm());
+        	drugsList.add(drug);
+        	drugNaturalText = NaturalLanguageGenerator.getNaturalText(drug,usedAbbreviation);
+        	System.out.println("Drug Natural Text "+drugNaturalText);
+        }
         
-        
-        
-        
-		return null;
+		return drugNaturalText;
 	}
 
 
+	private static String normalize(String text) {
+		for(String word : text.split(" ")){
+			if(abbnList.containsKey(word)){
+				text = text.replace(word, abbnList.get(word).getAcronymText());
+				usedAbbreviation.put(word, abbnList.get(word));
+			}
+		}
+		System.out.println("Normalised Text "+text+ usedAbbreviation.size());
+		return text;
+	}
 
 }
