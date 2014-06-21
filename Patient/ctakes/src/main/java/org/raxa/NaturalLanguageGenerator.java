@@ -92,7 +92,7 @@ public class NaturalLanguageGenerator {
 		System.out.println("Converting to language: "+language);
 		
 		Translate.setClientId("raxa_gsoc");
-	    Translate.setClientSecret("vnb8PDKWMHsFc8g1cI1PS33mb82K14zYfBNPrJBzfAs");
+	    Translate.setClientSecret("vnb8PDKWMHsFc8g1cI1PS33mb82K14zYfBNPrJBzfAs=");
 		
 		HashMap<String,Language> langMap = new HashMap<String, Language>();
 		langMap.put("hindi", Language.HINDI);
