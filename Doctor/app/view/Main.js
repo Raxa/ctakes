@@ -85,10 +85,17 @@ Ext.define('Doctor.view.Main', {
 			},
 			success: function(response){
 				var obj = Ext.decode(response.responseText);
-				console.log(obj);
+				console.log(obj[0]);
 				Ext.Viewport.remove(Ext.Viewport.getActiveItem(), true);
 				Ext.Viewport.setActiveItem(Ext.create('Doctor.view.SecondView'));
-				Ext.getCmp('laymanText').setValue(obj);
+				Ext.getCmp('drugName').setValue(obj[0]["drug"]);
+				Ext.getCmp('laymanText').setValue(obj[0]["naturalText"]);
+				Ext.getCmp('drugIndication').setValue(obj[0]["indication"]);
+				Ext.getCmp('drugContraindication').setValue(obj[0]["contraindication"]);
+				Ext.getCmp('drugCaution').setValue(obj[0]["caution"]);
+				Ext.getCmp('drugSideEffects').setValue(obj[0]["sideeffects"]);
+				
+				
 			}
 		});
 	}

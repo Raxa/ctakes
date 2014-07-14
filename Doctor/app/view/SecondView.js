@@ -33,25 +33,66 @@ Ext.define('Doctor.view.SecondView', {
 				xtype: 'fieldset',
 				items: [
 				        {
-				        	xtype: 'textareafield',
-				        	id: 'laymanText',
-				        	placeHolder: 'Medical Description in Layman language translated to desired language',
+				        	xtype: 'textfield',
+				        	label: 'Drug',
+				        	labelWrap: true,
+				        	id: 'drugName',
+				        	placeHolder: 'Drug Name',
 				        	readOnly: true
-				        }		
+				        },
+				        {
+				        	xtype: 'textfield',
+				        	label: 'Prescription Meaning',
+				        	labelWrap: true,
+				        	id: 'laymanText',
+				        	placeHolder: 'What Doctor Meant',
+				        	readOnly: true
+				        },
+				        {
+				        	xtype: 'textareafield',
+				        	label: 'Indication',
+				        	labelWrap: true,
+				        	id: 'drugIndication',
+				        	placeHolder: 'Drug Indications',
+				        	readOnly: true
+				        },
+				        {
+				        	xtype: 'textareafield',
+				        	label: 'Contra Indications',
+				        	labelWrap: true,
+				        	id: 'drugContraindication',
+				        	placeHolder: 'Drug ContraIndications',
+				        	readOnly: true
+				        },
+				        {
+				        	xtype: 'textareafield',
+				        	label: 'Cautions',
+				        	labelWrap: true,
+				        	id: 'drugCaution',
+				        	placeHolder: 'Drug Cautions',
+				        	readOnly: true
+				        },
+				        {
+				        	xtype: 'textareafield',
+				        	label: 'Side Effects',
+				        	labelWrap: true,
+				        	id: 'drugSideEffects',
+				        	placeHolder: 'Drug SideEffects',
+				        	readOnly: true
+				        },
+				        
+
 				        ]	
 		};
 
-		var newButton = {
-				xtype: "button",
-				text: 'Show Me More'
-		};
 
-		this.add([topToolbar,textArea,newButton,bottomToolbar]);
+		this.add([topToolbar,textArea,bottomToolbar]);
 
 	},
-	
+
 	onBackPress: function(){
 		Ext.Viewport.remove(Ext.Viewport.getActiveItem(), true);
 		Ext.Viewport.setActiveItem(Ext.create('Doctor.view.Main')); 
 	}
+
 });
