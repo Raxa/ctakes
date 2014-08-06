@@ -15,7 +15,7 @@ public class InformationExtraction {
 		HashMap<String,String> info = new HashMap<String, String>();
 		Class.forName("com.mysql.jdbc.Driver");
 		Connection connection = DriverManager
-				.getConnection("jdbc:mysql://localhost:3306/Gsoc", "root", "r");
+				.getConnection("jdbc:mysql://localhost:3306/Gsoc", "root", "rpg0908");
 		
 		if(drugName.equals("")){
 			System.out.println("No drug to search for");
