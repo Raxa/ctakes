@@ -221,7 +221,7 @@ Ext.define('Doctor.view.Main', {
 			textToQuery = inputText.substr(inputText.lastIndexOf(' '),inputText.length).trim();
 		}
 		console.log("Text to Query "+textToQuery);
-		if (textToQuery.length>=2){
+		if (textToQuery.length>=3){
 			Ext.Ajax.request({
 				method: 'GET',
 				type: 'jsonp',
