@@ -221,7 +221,7 @@ Ext.define('Doctor.view.Main', {
 			textToQuery = inputText.substr(inputText.lastIndexOf(' '),inputText.length).trim();
 		}
 		console.log("Text to Query "+textToQuery);
-		if (textToQuery.length>=3){
+		if (textToQuery.length>=2){
 			Ext.Ajax.request({
 				method: 'GET',
 				type: 'jsonp',
@@ -241,7 +241,7 @@ Ext.define('Doctor.view.Main', {
 						if(obj[i]["Type"]=="Drug"){
 							drugRows.push(obj[i]["Text"]);
 						}
-						else if (row["Type"]=="Test"){
+						else if (obj[i]["Type"]=="Test"){
 							testRows.push(obj[i]["Text"]);
 						}
 					}
