@@ -3,8 +3,9 @@ package org.raxa;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import com.memetix.mst.language.Language;
-import com.memetix.mst.translate.Translate;
+import com.gtranslate.Language;
+import com.gtranslate.Translator;
+
 
 public class NaturalLanguageGenerator {
 	
@@ -92,16 +93,19 @@ public class NaturalLanguageGenerator {
 
 	public static String langTranslator(String drugNaturalText, String language) throws Exception {
 		System.out.println("Converting to language: "+language);
+		Translator translate = Translator.getInstance();
 		
-		Translate.setClientId("raxa_gsoc");
-	    Translate.setClientSecret("vnb8PDKWMHsFc8g1cI1PS33mb82K14zYfBNPrJBzfAs=");
-		
-		HashMap<String,Language> langMap = new HashMap<String, Language>();
+		HashMap<String,String> langMap = new HashMap<String, String>();
 		langMap.put("hindi", Language.HINDI);
+		langMap.put("gujarati", Language.GUJARATI);
+		langMap.put("tamil", Language.TAMIL);
+		langMap.put("telugu", Language.TELUGU);
+		langMap.put("kannada", Language.KANNADA);
 		langMap.put("urdu", Language.URDU);
 		langMap.put("english", Language.ENGLISH);
+		langMap.put("bengali",Language.BENGALI);
 		
-		String text = Translate.execute(drugNaturalText, langMap.get(language.toLowerCase()));
+		String text = translate.translate(drugNaturalText, Language.ENGLISH, langMap.get(language.toLowerCase()));
 		System.out.println(text);
 		return text;
 	}

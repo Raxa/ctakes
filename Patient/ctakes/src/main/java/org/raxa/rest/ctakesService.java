@@ -1,6 +1,7 @@
 package org.raxa.rest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,13 +25,13 @@ public class ctakesService {
 	@GET
 	@Path("/{parameter}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resposeMsg(@QueryParam("language") String language, @QueryParam("text") List<String> text) throws Exception{
+	public Response resposeMsg(@QueryParam("language") String language, @QueryParam("text") String text1) throws Exception{
 		
 		ArrayList <HashMap<String,String>> drugMap = new ArrayList<HashMap<String,String>>();
-		
+		List<String> text = Arrays.asList(text1.split("and|,|\n"));
 		for(String drugtext : text){
 			System.out.println(drugtext);
-			HashMap<String, String> drug = CtakesService.extract(drugtext);
+			HashMap<String, String> drug = CtakesService.extract(drugtext.trim());
 			String langconvertedText = 
 					NaturalLanguageGenerator.langTranslator(drug.get("naturalText"),language);
 			drug.put("naturalText", langconvertedText);
@@ -44,7 +45,8 @@ public class ctakesService {
 		Gson gson = new Gson();
 		String json = gson.toJson(drugMap);
 		System.out.println(json);
-		return Response.status(200).header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+		return Response.status(200)
+				.header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
 				.entity(json).build();
 	}
 }
