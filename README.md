@@ -12,7 +12,7 @@ Dependencies
   gson: For conversion to JSON format
   mysql-connector-java: Driver to connect to MySQL database.
 
-2. External Resources
+2.External Resources
 
 The folder SentenceDetection, Chunker, POSTagger and DictionaryLookup contains the external resources required by the ctakes server. The file LookupDesc_DrugNER.xml contains important configuration required to be filled before running the NER pipeline.
 
