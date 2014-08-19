@@ -39,7 +39,8 @@ Is the main class which perform the core of the functions. It performs three mai
 This class provides the method to search for more information about the drug using Generic drug name. The information obtained are Indications, Contraindications, Precautions and Side effects.
 
 
-4. How to run Patient Module?
+4. How to run?
+
 Note : Will require Internet Connection to install as well as run the server
 
 Plugins/Softwares Required 
