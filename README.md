@@ -24,19 +24,19 @@ The folder Abbreviations has three files drugForm, drugRoute and drugFrequency w
 Package org.raxa contains the main project Java file while org.raxa.rest contains the sources related to providing the api.
 
   a. Abbreviation.java
-Helper class which provides abbreviation object to normalise the input text. Contains three parameters acronym, acronymText, and acronymType. acronym is the short form, acronymText is the full form while acronymType is the category of acronym (drugForm, drugFrequency, drugRoute). As of now there are three categories as mentioned we divide the more frequently used acronyms into these three categories and others so that it may also help to extract important parameters missed by the ctakes extraction. These acronyms are read/inflated from the files separately provided in the Abbreviations folder.
+  Helper class which provides abbreviation object to normalise the input text. Contains three parameters acronym, acronymText, and acronymType. acronym is the short form, acronymText is the full form while acronymType is the category of acronym (drugForm, drugFrequency, drugRoute). As of now there are three categories as mentioned we divide the more frequently used acronyms into these three categories and others so that it may also help to extract important parameters missed by the ctakes extraction. These acronyms are read/inflated from the files separately provided in the Abbreviations folder.
 
   b. Drug.java
-Helper class which creates the Drug object for the drug extracted from the input. Contains the parametes drugName, drugFrequency, drugFrequencyUnit, drugStrength, drugStrengthUnit, drugRoute, drugForm, drugDuration and drugDosage.
+  Helper class which creates the Drug object for the drug extracted from the input. Contains the parametes drugName, drugFrequency, drugFrequencyUnit, drugStrength, drugStrengthUnit, drugRoute, drugForm, drugDuration and drugDosage.
 
   c. NaturalLanguageGenerator.java
-This class provides the method to convert to drug extracted in form of parameters mentioned above to free form natural text. As of now contains only one method getNaturalText() which takes Drug object as input and converts and gives the layman natural text as output.
+  This class provides the method to convert to drug extracted in form of parameters mentioned above to free form natural text. As of now contains only one method getNaturalText() which takes Drug object as input and converts and gives the layman natural text as output.
 
   d. CtakesService.java
-Is the main class which perform the core of the functions. It performs three main functions of initializing the ctakes Analysis Engine and abbnList, Normalizing the input received and extracting the drug parameters using the initialised analysis engine and creating the Drug object. 
+  Is the main class which perform the core of the functions. It performs three main functions of initializing the ctakes Analysis Engine and abbnList, Normalizing the input received and extracting the drug parameters using the initialised analysis engine and creating the Drug object. 
 
   e. InformationExtraction.java
-This class provides the method to search for more information about the drug using Generic drug name. The information obtained are Indications, Contraindications, Precautions and Side effects.
+  This class provides the method to search for more information about the drug using Generic drug name. The information obtained are Indications, Contraindications, Precautions and Side effects.
 
 
 4.How to run?
@@ -44,15 +44,15 @@ This class provides the method to search for more information about the drug usi
 Note : Will require Internet Connection to install as well as run the server
 
 Plugins/Softwares Required 
-a. Apache Maven 
-b. Apache Tomcat Server
+  a. Apache Maven 
+  b. Apache Tomcat Server
 
 Method 1.
-a. Download the Project and change working directory to the Patient folder.
-b. run mvn clean install 
-c. This will generate a war file inside target directory.
-d. Place the war directory under the webapps folder of your tomcat installation.(/var/libs/tomcat7/webapps/)
-e. Use POSTMAN (Google Chrome app) to test working. The url is http://localhost:8080/ctakes/rest/ctakes/hello?text=Prescription&language=language
+  a. Download the Project and change working directory to the Patient folder.
+  b. run mvn clean install 
+  c. This will generate a war file inside target directory.
+  d. Place the war directory under the webapps folder of your tomcat installation.(/var/libs/tomcat7/webapps/)
+  e. Use POSTMAN (Google Chrome app) to test working. The url is     http://localhost:8080/ctakes/rest/ctakes/hello?text=Prescription&language=language
 
 Current language supported are English, Hindi and Urdu, Kannada, Telugu, Tamil, Bengali. 
 Also please make sure acronyms in the prescriptions should be in caps.
@@ -61,7 +61,6 @@ Method 2. To run with eclipse
 
 a. Import the project.
 b. Make sure you have maven eclipse plugin and web development environment installed on your eclipse installation.
-(Refer this to install the web development environment)
 c. Next First Right click on the project and run as maven install. This will download all the libraries required to run the project. This operation may take some time depending upon internet connection.
 d. Second Right click on the project and select run on server. This will prompt you to select which server you wish to run the project on. Please select Apache Tomcat. This will start the project on the server.
 e. Use POSTMAN (Google Chrome app) to test working. The url is http://localhost:8080/ctakes/rest/ctakes/hello?text=FirstPrescription&language=language
