@@ -20,7 +20,7 @@ Gtanslate API (for language conversion): https://code.google.com/p/java-google-t
 
 The folder Abbreviations has three files drugForm, drugRoute and drugFrequency which we also provide/use to store the frequently used acronyms in the medical prescriptions.
 
-3. Java Sources
+3.Java Sources
 Package org.raxa contains the main project Java file while org.raxa.rest contains the sources related to providing the api.
 
   a. Abbreviation.java
@@ -39,7 +39,7 @@ Is the main class which perform the core of the functions. It performs three mai
 This class provides the method to search for more information about the drug using Generic drug name. The information obtained are Indications, Contraindications, Precautions and Side effects.
 
 
-4. How to run?
+4.How to run?
 
 Note : Will require Internet Connection to install as well as run the server
 
@@ -68,20 +68,20 @@ e. Use POSTMAN (Google Chrome app) to test working. The url is http://localhost:
 
 Doctor module backend
 
-1.  Dataset
+1.Dataset
 
 doctorModule.sql: Contains the SQL dump of the data required for the Doctor module. The database has three columns Id, Text and Type. Id is the sequential id, Text is the name of the drug/diagnosis etc while Type indicates whether it is a drug or diagnosis or any other medical term.
 
-2. Java Sources
+2.Java Sources
 
   a. GetInformation.java
     Main class which connects to the backend server to get suggestions based on the input.
   b. doctorService.java
     Servlet class
   
-3. How to run is same as Patient Backend
+3.How to run is same as Patient Backend
 
-4. pom.xml
+4.pom.xml
     jersey-core, jersey - server : For providing REST API to our ctakes - java based backend
     jersey - servlet : For holding the servlets on the server.
     jersey - json : To handle the JSON format required to format the output.
