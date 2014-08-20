@@ -105,7 +105,7 @@ public class NaturalLanguageGenerator {
 		langMap.put("english", Language.ENGLISH);
 		langMap.put("bengali",Language.BENGALI);
 		
-		String text = translate.translate(drugNaturalText, Language.ENGLISH, langMap.get(language.toLowerCase()));
+		String text = translate.translate(drugNaturalText.replace(",", ""), Language.ENGLISH, langMap.get(language.toLowerCase()));
 		System.out.println(text);
 		return text;
 	}
