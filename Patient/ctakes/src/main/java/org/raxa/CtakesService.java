@@ -23,7 +23,7 @@ import org.apache.ctakes.core.ae.TokenizerAnnotatorPTB;
 import org.apache.ctakes.core.resource.FileResource;
 import org.apache.ctakes.core.resource.FileResourceImpl;
 import org.apache.ctakes.core.resource.LuceneIndexReaderResourceImpl;
-import org.apache.ctakes.dictionary.lookup.ae.UmlsDictionaryLookupAnnotator;
+import org.apache.ctakes.dictionary.lookup.ae.DictionaryLookupAnnotator;
 import org.apache.ctakes.drugner.ae.CopyDrugAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.lvg.ae.LvgAnnotator;
@@ -526,36 +526,6 @@ public class CtakesService
 
 	private static AnalysisEngineDescription getDictlookupDesc() throws MalformedURLException, ResourceInitializationException, URISyntaxException {
 		
-		ConfigurationParameter[] configurationParameters = new ConfigurationParameter[5];
-        ConfigurationParameter maxListSize =
-                ConfigurationParameterFactory.createPrimitiveParameter(
-                        "maxListSize", Integer.class, DESC, false);
-        ConfigurationParameter ctakesUmlsaddr =
-                ConfigurationParameterFactory.createPrimitiveParameter(
-                        "ctakes.umlsaddr", String.class, DESC, false);
-        ConfigurationParameter ctakesUmlsvendor =
-                ConfigurationParameterFactory.createPrimitiveParameter(
-                        "ctakes.umlsvendor", String.class, DESC, false);
-        ConfigurationParameter ctakesUmlsuser =
-                ConfigurationParameterFactory.createPrimitiveParameter(
-                        "ctakes.umlsuser", String.class, DESC, false);
-        ConfigurationParameter ctakesUmlspass =
-                ConfigurationParameterFactory.createPrimitiveParameter(
-                        "ctakes.umlspw", String.class, DESC, false);
-        
-        configurationParameters[0] = maxListSize;
-        configurationParameters[1] = ctakesUmlsaddr;
-        configurationParameters[2] = ctakesUmlsvendor;
-        configurationParameters[3] = ctakesUmlsuser;
-        configurationParameters[4] = ctakesUmlspass;
-        
-        Object[] configVals = new Object[5];
-        configVals[0]=2147483647;
-        configVals[1]="https://uts-ws.nlm.nih.gov/restful/isValidctakes.umlsuser";
-        configVals[2]="NLM-6515182895";
-        configVals[3]="ravigarg27";
-        configVals[4]="rpg09081$";
-        
         
         String fileurl = CtakesService.class.getClassLoader().getResource("DictionaryLookup/LookupDesc_DrugNER.xml").toURI().toURL().toString();
         ExternalResourceDescription dictERD1 =
@@ -568,7 +538,7 @@ public class CtakesService
         ExternalResourceDescription dictERD2 =
                 ExternalResourceFactory.createExternalResourceDescription(
                         "RxnormIndex", luceneResClassImpl, "",
-                        "UseMemoryIndex", true, "IndexDirectory", "DictionaryLookup/rxnorm_index");
+                        "UseMemoryIndex", true, "IndexDirectory", "DictionaryLookup/drug_index");
 
         String lookupDesc = "LookupDescriptor";
         String rxIndexReader = "RxnormIndexReader";
@@ -579,9 +549,7 @@ public class CtakesService
         dictMap.put(rxIndexReader, dictERD2);
 
         AnalysisEngineDescription dictAED =
-                AnalysisEngineFactory.createPrimitiveDescription(
-                        UmlsDictionaryLookupAnnotator.class, null, null, null, null,
-                        configurationParameters, configVals, dictMap);
+                AnalysisEngineFactory.createPrimitiveDescription(DictionaryLookupAnnotator.class, null, null, null, null, null, null, dictMap);
         
 		return dictAED;
 	}
