@@ -794,10 +794,12 @@ public class CtakesService
 
 
 	//Main Extract Method
-	public static String extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException, InvalidXMLException, URISyntaxException, IOException {
+	public static HashMap<String, String> extract(String input) throws ResourceInitializationException, AnalysisEngineProcessException, InvalidXMLException, URISyntaxException, IOException {
 		
-		ArrayList<Drug> drugsList = new ArrayList<Drug>();
+		//ArrayList<Drug> drugsList = new ArrayList<Drug>();
 		String drugNaturalText="";
+		String drugName="";
+		HashMap<String,String> drugMap = new HashMap<String, String>();
 		usedAbbreviation = new HashMap<String, Abbreviation>();
 		
 		if(analysisEng==null){
@@ -828,6 +830,7 @@ public class CtakesService
         	if(drugMention.getCoveredText().split(" ").length>=3)
         		continue;
         	
+        	drugName = drugMention.getCoveredText();
         	drug.setDrugName(drugMention.getCoveredText());
         	
         	//get the drug dosage 
@@ -867,12 +870,14 @@ public class CtakesService
         	}
         	
         	System.out.println("Route "+drug.getRoute()+" Form "+drug.getForm());
-        	drugsList.add(drug);
+        	//drugsList.add(drug);
         	drugNaturalText = NaturalLanguageGenerator.getNaturalText(drug,usedAbbreviation);
         	System.out.println("Drug Natural Text "+drugNaturalText);
         }
         
-		return drugNaturalText;
+        drugMap.put("drug", drugName);
+        drugMap.put("naturalText", drugNaturalText);
+		return drugMap;
 	}
 
 
