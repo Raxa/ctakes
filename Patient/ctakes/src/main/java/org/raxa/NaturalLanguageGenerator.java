@@ -70,6 +70,8 @@ public class NaturalLanguageGenerator {
 		//Add other accronyms used if any
 		naturalText += getFromAccr("Others").toLowerCase() +".";
 		
+		
+		
 		return naturalText;
 	}
 

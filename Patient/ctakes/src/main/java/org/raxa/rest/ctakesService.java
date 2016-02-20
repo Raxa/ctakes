@@ -1,6 +1,7 @@
 package org.raxa.rest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -25,18 +26,25 @@ public class ctakesService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resposeMsg(@QueryParam("language") String language, @QueryParam("text") List<String> text) throws Exception{
 		
-		ArrayList <String> naturalText = new ArrayList<String>();
+		ArrayList <HashMap<String,String>> drugMap = new ArrayList<HashMap<String,String>>();
 		
 		for(String drugtext : text){
 			System.out.println(drugtext);
-			String drugNaturalText = CtakesService.extract(drugtext);
-			String convertedText = NaturalLanguageGenerator.langTranslator(drugNaturalText,language);
-			naturalText.add(convertedText);
+			HashMap<String, String> drug = CtakesService.extract(drugtext);
+			String langconvertedText = 
+					NaturalLanguageGenerator.langTranslator(drug.get("naturalText"),language);
+			drug.put("naturalText", langconvertedText);
+			//query the database to get the other info of drug
+			System.out.println("Natural Text Out "+langconvertedText);
+			HashMap<String,String> info = InformationExtraction.getInfo(drug.get("drug"));
+			drug.putAll(info);
+			drugMap.add(drug);
 		}
 		//String output = drugsList.toString();
 		Gson gson = new Gson();
-		String json = gson.toJson(naturalText);
-		//System.out.println(output);
-		return Response.status(200).entity(json).build();
+		String json = gson.toJson(drugMap);
+		System.out.println(json);
+		return Response.status(200).header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+				.entity(json).build();
 	}
 }
